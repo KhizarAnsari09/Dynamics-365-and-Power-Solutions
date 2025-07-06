@@ -1,0 +1,1 @@
+This folder consists of X++ code which can help you connect to your Azure Blob Storage of choice provided you have the storage name, connection string, container name & directory name.
