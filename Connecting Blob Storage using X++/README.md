@@ -6,7 +6,7 @@ using Microsoft.Azure.Storage.Blob.CloudBlobClient;
 using Microsoft.Azure.Storage.Blob.CloudBlobContainer;
 using Microsoft.Azure.Storage.Blob.CloudBlobDirectory;
 
-using System.IO.Stream;
+using System.IO.MemoryStream;
 using System.IO.StreamReader;
 
 public final class FetchDataFromBlobStorage
