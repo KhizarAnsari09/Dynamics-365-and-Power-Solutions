@@ -1,0 +1,104 @@
+internal final class AutoCrossDocking //extends SysOperationServiceBase
+{   
+    public void autoCrossDock()
+    {
+        
+        while select * from PurchLine where PurchLine.PurchStatus == PurchStatus::Backorder
+        {
+            InventDim   _inventDimCriteria;
+
+	    // Chunk 1 
+            Qty purchOrdered = purchLine.calcQtyOrdered(), purchRegis = purchLine.qtyMarked();
+
+            Qty totalQtyAvailableForMarking = abs(purchOrdered) - abs(purchRegis);
+
+            if(totalQtyAvailableForMarking > 0)
+            {
+                InventTable inventTable = InventTable::find(purchLine.ItemId, false);
+
+                while select * from SalesLine
+                    join Salestable where SalesTable.SalesStatus == SalesStatus::Backorder && SalesLine.ItemId == PurchLine.ItemId
+                {
+			// Chunk 2
+                        Map mapMarkNow = new Map(Types::Int64, Types::Record);
+
+                        // Check the total ordered Quantity and the marked quantity against a sales line
+                        Qty markNow = 0, calcQtyOrdered = abs(SalesLine.calcQtyOrdered()), qtyMarked = abs(SalesLine.qtyMarked());
+                    
+                        // Below will gives us any unmarked quantity available for marking against a sales line.
+                        Qty unMarked = calcQtyOrdered - qtyMarked;
+		        
+			
+			// Chunk 3
+                        // Only proceed if you have some quantity in the sales order available to be marked
+                        if(unMarked > 0)
+                        {
+                            InventTrans inventTrans = InventTrans::findTransId(SalesLine.InventTransId, false);
+
+                            TmpInventTransMark tmpInventTransMark;
+                            tmpInventTransMark.clear();
+                            tmpInventTransMark.initFromInventTrans(inventTrans);
+                            tmpInventTransMark.aggregateInventTrans(inventTrans, inventTable);
+
+                            // If the unmarked quantity is smaller than or equal to totalQtyAvailableForMarking then use the unmarked as the markNow and deduct it from the totalQtyAvailableForMarking
+                            if(totalQtyAvailableForMarking - unMarked >= 0)
+                            {
+                                markNow = unMarked;
+
+                                totalQtyAvailableForMarking -= unMarked;
+                            }
+                            // If the unmarked quantity is greater than totalQtyAvailableForMarking then use the totalQtyAvailableForMarking and set the totalQtyAvailableForMarking to zero
+                            else
+                            {
+                                markNow = totalQtyAvailableForMarking;
+
+                                totalQtyAvailableForMarking = 0;
+                            }
+
+
+                            tmpInventTransMark.qtyMarkNow = -markNow;
+
+                            // In some cases we have more salesQty that purchQty and we have to pass the remaining quantity, otherwise it is zero
+                            tmpInventTransMark.QtyRemain = -(unMarked - markNow);
+
+                            ttsbegin;
+                            tmpInventTransMark.insert();
+                            ttscommit;
+
+                            mapMarkNow.insert(tmpInventTransMark.RecId, tmpInventTransMark);
+
+                            InventUpdateMarkingParameters markingParameters = InventUpdateMarkingParameters::createInstance();
+
+                            markingParameters.parmInventTransOriginRecId(InventTransOrigin::findByInventTransId(purchLine.InventTransId, false).RecId);
+
+                            _inventDimCriteria.clear();
+                            _inventDimCriteria.initFromInventDim(purchLine.inventDim());
+
+                            ttsbegin;
+                            _inventDimCriteria.insert();
+                            ttscommit;
+
+                            markingParameters.parmInventDimCriteria(_inventDimCriteria);
+                            markingParameters.parmQty(purchOrdered);
+                            markingParameters.parmTmpInventTransMarkMap(mapMarkNow);
+                            markingParameters.parmPreReserveAccordingToMarking(false);
+                            markingParameters.completeInitialization();
+
+                            InventUpdateMarking::createInstance(markingParameters).updateMarking();
+
+                        }
+                        
+                        if(totalQtyAvailableForMarking == 0)
+                        {
+                            break;
+                        }
+
+                    }
+
+            }//Purchase if ends here
+            
+        }
+
+    }
+    
+}
