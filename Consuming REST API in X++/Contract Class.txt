@@ -1,0 +1,38 @@
+[DataContract]
+public final class HTTPContract
+{
+    private str user;
+    private str id;
+    private str title;
+    private str completed;
+
+
+    [DataMember('userId')]
+    public str parmUser(str _user = user)
+    {
+        user = _user;
+        return user;
+    }
+
+    [DataMember('id')]
+    public str parmId(str _id = id)
+    {
+        id = _id;
+        return id;
+    }
+
+    [DataMember('title')]
+    public str parmTitle(str _title = title)
+    {
+        title = _title;
+        return title;
+    }
+
+    [DataMember('completed')]
+    public str parmCompleted(str _completed = completed)
+    {
+        completed = _completed;
+        return completed;
+    }
+
+}
