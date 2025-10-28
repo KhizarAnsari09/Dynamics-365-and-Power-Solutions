@@ -1,0 +1,35 @@
+using System.Net.Http.HttpClient;
+using System.Net.Http.HttpResponseMessage;
+using System.IO.Stream;
+
+internal final class HTTPCalls
+{
+    public static void main(Args _args)
+    {
+        // Making an object of the client to call
+        System.Net.Http.HttpClient clientToCall = new  System.Net.Http.HttpClient();
+        
+        // Making a GET call to the API we need to consume. This returns an object of System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage>
+        var task = clientToCall.GetAsync("https://jsonplaceholder.typicode.com/todos/1");
+
+        // We call the get_Result() which gives an object of HttpResponseMessage
+        System.Net.Http.HttpResponseMessage responseMessage = task.get_Result() as System.Net.Http.HttpResponseMessage;
+
+        // Returns a stream of content
+        System.Net.Http.StreamContent content = responseMessage.Content;
+
+        // Returns the JSON serialized as a string
+        str responseString = content.ReadAsStringAsync().Result;
+
+        // Create a contract of the JSON response we receive
+        HTTPContract contract = new HTTPContract();
+
+        // Using the FormJsonSerializer we deserialize the response
+        contract = FormJsonSerializer::deserializeObject(classNum(HTTPContract), responseString);
+
+        // An info message just to check
+        info(strFmt("ID = %1, Title = %2, Completed = %3", contract.parmId(), contract.parmTitle(), contract.parmCompleted()));
+
+    }
+
+}
