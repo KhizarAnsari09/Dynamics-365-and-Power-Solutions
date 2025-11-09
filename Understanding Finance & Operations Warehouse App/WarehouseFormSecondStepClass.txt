@@ -1,0 +1,57 @@
+[ProcessGuideStepName(classStr(WarehouseFormSecondStepClass))]
+public final class WarehouseFormSecondStepClass extends ProcessGuideStep
+{
+    protected final ProcessGuidePageBuilderName pageBuilderName()
+    {
+        return classStr(WarehouseFormPageBuilder);
+    }
+
+    protected void doExecute()
+    {
+        super();
+
+        WhsrfPassthrough pass = controller.parmSessionState().parmPass();
+        ProcessGuideActionName actionName = controller.parmClickedAction();
+
+        if(actionName == ProcessGuideActionNames::ActionBackStepProcess)
+        {
+            controller.parmNavigationRoute().addFollowingStep(classStr(WarehouseFormSecondStepClass), classStr(WarehouseFormFirstStepClass));
+
+            pass.remove("CustomerAccount");
+            pass.remove("CustomerName");
+            pass.remove("ConfirmedReceiptDate");
+            pass.remove("SalesType");
+            pass.remove("SalesOrder");
+            pass.remove("SalesPoolId");
+            pass.remove("SalesOrderLabel");
+        }
+
+        SalesPoolId salesPoolId = pass.lookupStr("SalesPoolId");
+
+        if(salesPoolId)
+        {
+            SalesTable salesTable;
+
+            select firstonly salesTable where salesTable.SalesId == pass.lookupStr("SalesOrder");
+
+            ttsbegin;
+            salesTable.selectForUpdate(true);
+            salesTable.SalesPoolId = salesPoolId;
+            salesTable.update();
+            ttscommit;
+
+            controller.parmNavigationRoute().addFollowingStep(classStr(WarehouseFormSecondStepClass), classStr(WarehouseFormFirstStepClass));
+
+            pass.remove("CustomerAccount");
+            pass.remove("CustomerName");
+            pass.remove("ConfirmedReceiptDate");
+            pass.remove("SalesType");
+            pass.remove("SalesOrder");
+            pass.remove("SalesPoolId");
+            pass.remove("SalesOrderLabel");
+
+        }
+
+    }
+
+}

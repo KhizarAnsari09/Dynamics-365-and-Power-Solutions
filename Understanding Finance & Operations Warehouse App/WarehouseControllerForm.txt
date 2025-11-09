@@ -1,0 +1,16 @@
+[WHSWorkExecuteMode(WHSWorkExecuteMode::TestWarehouseForm)]
+public final class WarehouseControllerForm extends ProcessGuideController
+{
+    protected final ProcessGuideStepName initialStepName()
+    {
+        return classStr(WarehouseFormFirstStepClass);
+    }
+
+    protected ProcessGuideNavigationRoute initializeNavigationRoute()
+    {
+        ProcessGuideNavigationRoute navigationRoute = new ProcessGuideNavigationRoute();
+
+        return navigationRoute;
+    }
+
+}

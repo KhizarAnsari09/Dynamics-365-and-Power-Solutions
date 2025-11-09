@@ -1,0 +1,35 @@
+[ProcessGuideStepName(classStr(WarehouseFormFirstStepClass))]
+internal final class WarehouseFormFirstStepClass extends ProcessGuideStep
+{
+    protected final ProcessGuidePageBuilderName pageBuilderName()
+    {
+        return classStr(WarehouseFormPageBuilder);
+    }
+
+    protected void doExecute()
+    {
+        super();
+
+        WhsrfPassthrough pass = controller.parmSessionState().parmPass();
+        ProcessGuideActionName actionName = controller.parmClickedAction();
+
+        if(pass.exists("SalesOrder"))
+        {
+            SalesTable salesTable = SalesTable::find(pass.lookupStr("SalesOrder"));
+
+            if(!salesTable.RecId)
+            {
+                controller.parmNavigationRoute().addFollowingStep(classStr(WarehouseFormFirstStepClass), classStr(WarehouseFormFirstStepClass));
+
+            }
+
+            else
+            {
+                controller.parmNavigationRoute().addFollowingStep(classStr(WarehouseFormFirstStepClass), classStr(WarehouseFormSecondStepClass));
+            }
+
+        }
+
+    }
+
+}

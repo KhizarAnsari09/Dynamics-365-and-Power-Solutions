@@ -1,0 +1,61 @@
+[ProcessGuidePageBuilderName(classStr(WarehouseFormPageBuilder))]
+public final class WarehouseFormPageBuilder extends ProcessGuidePageBuilder
+{
+    protected void addDataControls(ProcessGuidePage _page)
+    {
+        WhsrfPassthrough pass = controller.parmSessionState().parmPass();
+
+        SalesId     salesId = pass.lookupStr("SalesOrder");
+        boolean     checkExists = pass.exists("SalesOrder");
+        SalesTable  salesTable;
+
+        select firstonly salesTable where salesTable.SalesId == salesId;
+        
+        if(salesTable.SalesId && checkExists)
+        {
+            _page.addLabel("SalesOrderLabel", "SALES ORDER FOUND", extendedTypeNum(WHSRFUndefinedDataType));
+            
+        }
+        
+        if(salesTable.SalesId == "" && checkExists && salesId != "")
+        {
+            _page.addLabel("SalesOrderLabel", "SALES ORDER NOT FOUND", extendedTypeNum(WHSRFUndefinedDataType));
+        }
+
+        _page.addTextBox("SalesOrder", "Sales order number", extendedTypeNum(SalesId), salesTable.SalesId != "" ? false : true /*salesId == "" ? true : false*/, salesTable.SalesId);
+
+        if(salesTable.SalesId && checkExists)
+        {
+            SalesPool   salesPool;
+            List        elements = new List(Types::String);
+
+            _page.addTextBox("CustomerAccount", "Customer account", extendedTypeNum(CustAccount), false, salesTable.CustAccount);
+            _page.addTextBox("CustomerName", "Customer name", extendedTypeNum(Name), false, salesTable.SalesName);
+            _page.addTextBox("ConfirmedReceiptDate", "Requested ship date", extendedTypeNum(TransDate), false, date2Str(salesTable.ShippingDateRequested, 123, DateDay::Digits2, DateSeparator::Slash, DateMonth::Digits2, DateSeparator::Slash, DateYear::Digits4));
+            _page.addTextBox("SalesType", "Sales type", extendedTypeNum(WHSRFUndefinedDataType), false, enum2Str(salesTable.SalesType));
+
+            while select SalesPoolId from salesPool
+            {
+                elements.addEnd(salesPool.SalesPoolId);
+            }
+
+            _page.addComboBox("SalesPoolId", "Sales pool Id", extendedTypeNum(SalesPoolId), strList2str(elements, "||"), true, pass.lookupStr("SalesPoolId"));
+
+        }
+
+    }
+
+    protected void addActionControls(ProcessGuidePage _page)
+    {
+        _page.addButton(step.createAction(ProcessGuideActionNames::ActionOK), 1);
+        
+        if(step.name() == classStr(WarehouseFormSecondStepClass))
+        {
+            _page.addButton(step.createAction(ProcessGuideActionNames::ActionBackStepProcess), 1);
+        }
+
+        _page.addButton(step.createAction(ProcessGuideActionNames::ActionCancelExitProcess), 1);
+
+    }
+
+}
