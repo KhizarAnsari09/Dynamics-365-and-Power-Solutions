@@ -1,0 +1,25 @@
+[ProcessGuidePageBuilderName(classStr(QueryInquiryPageBuilder))]
+public class QueryInquiryPageBuilder extends ProcessGuidePageBuilder
+{
+    #Macros
+    protected void addActionControls(ProcessGuidePage _page)
+    {
+        _page.addButton(step.createAction(ProcessGuideActionNames::ActionOK), 1);
+        _page.addButton(step.createAction(ProcessGuideActionNames::ActionCancelExitProcess), 1);
+    }
+
+    protected void addDataControls(ProcessGuidePage _page)
+    {
+        DictEnum                dictEnum = new DictEnum(enumNum(smmOpportunityStatus));
+        int                     totalEnums = dictEnum.values();
+        List                    enumValuesList = new List(Types::String);
+        for(int c = 0; c < totalEnums; c++)
+        {
+            enumValuesList.addEnd(dictEnum.index2Name(c));
+        }
+
+        _page.addComboBox('Status', "@SCM:SalesStatusLabel", extendedTypeNum(Description), strList2str(enumValuesList, #ListSeparator));
+
+    }
+
+}

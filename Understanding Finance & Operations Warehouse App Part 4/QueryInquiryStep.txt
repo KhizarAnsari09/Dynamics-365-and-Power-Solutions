@@ -1,0 +1,11 @@
+[ProcessGuideStepName(classStr(QueryInquiryStep))]
+public class QueryInquiryStep extends ProcessGuideStep
+{
+    #Macros
+
+    protected final ProcessGuidePageBuilderName pageBuilderName()
+    {
+        return classStr(QueryInquiryPageBuilder);
+    }
+
+}

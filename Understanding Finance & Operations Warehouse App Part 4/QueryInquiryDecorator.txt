@@ -1,0 +1,8 @@
+internal final class QueryInquiryDecorator extends WHSMobileAppServiceXMLDecorator
+{
+    protected void registerRules()
+    {
+        rulesList.addEnd(QueryDecoratorRule::construct());
+    }
+
+}

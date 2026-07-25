@@ -1,0 +1,13 @@
+public class QueryResultDecorator extends WHSMobileAppServiceXMLDecorator
+{
+    protected void registerRules()
+    {
+        rulesList.addEnd(QueryDecoratorRule::construct());
+    }
+
+    public WHSMobileAppPagePattern requestedPattern()
+    {
+        return WHSMobileAppPagePattern::Inquiry;
+    }
+
+}

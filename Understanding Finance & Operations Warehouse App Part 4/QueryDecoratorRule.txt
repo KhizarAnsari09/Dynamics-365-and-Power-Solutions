@@ -1,0 +1,60 @@
+public class QueryDecoratorRule implements WHSIMobileAppServiceXMLDecoratorRule
+{
+    #Macros
+
+    public static QueryDecoratorRule construct()
+    {
+        return new QueryDecoratorRule();
+    }
+
+    public void run(WHSMobileAppPageInfo _pageInfo)
+    {
+        ListEnumerator le = _pageInfo.parmControlsEnumerator();
+
+        while (le.moveNext())
+        {
+            Map controlMap = le.current();
+            
+            this.decorateControl(controlMap);
+
+        }
+
+    }
+
+    private void decorateControl(Map _controlMap)
+    {
+        str displayArea = this.getDisplayArea(_controlMap);
+
+        if (displayArea)
+        {
+            _controlMap.insert(#XMLControlDisplayArea, displayArea);
+        }
+    }
+
+    private str getDisplayArea(Map _controlMap)
+    {
+        var displayArea = WHSMobileAppXMLDisplayArea::EmptyArea;
+        var controlType = _controlMap.lookup(#XMLControlCtrlType);
+
+        switch (controlType)
+        {
+            case #RFButton:
+                if (_controlMap.lookup(#XMLControlDefaultButton) == '1')
+                {
+                    displayArea = WHSMobileAppXMLDisplayArea::PrimaryActionArea;
+                }
+                break;
+            case #RFDetourButton:
+                displayArea = WHSMobileAppXMLDisplayArea::EmptyArea;
+                break;
+            case #RFLabel:
+                displayArea = WHSMobileAppXMLDisplayArea::BodyArea;
+                break;
+            default:
+                displayArea = WHSMobileAppXMLDisplayArea::PrimaryInputArea;
+                break;
+        }
+
+        return displayArea;
+    }
+}

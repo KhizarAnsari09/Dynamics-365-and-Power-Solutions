@@ -1,0 +1,27 @@
+[ProcessGuidePageBuilderName(classStr(QueryResultPageBuilder))]
+public class QueryResultPageBuilder extends ProcessGuidePageBuilder
+{
+    protected void addActionControls(ProcessGuidePage _page)
+    {
+        _page.addButton(step.createAction(ProcessGuideActionNames::ActionCancelResetProcess), 1);
+    }
+
+    protected void addDataControls(ProcessGuidePage _page)
+    {
+        WhsrfPassthrough pass = controller.parmSessionState().parmPass();
+
+        int                     cardCount;
+        smmOpportunityTable     opportunityTable;
+        HcmWorker               worker;
+        smmOpportunityStatus    status;
+        str                     KeyValuePairWithSeparator = 'Opportunity ID~:::~%1\nSubject~:::~%2\nOwner worker~:::~%3\n';
+
+        while select opportunityTable where opportunityTable.Status == str2Enum(status, pass.lookupStr('Status'))
+            outer join worker where worker.RecId == opportunityTable.OwnerWorker
+        {
+            cardCount++;
+            _page.addLabel(int2str(cardCount), strFmt(KeyValuePairWithSeparator, opportunityTable.OpportunityId, opportunityTable.Subject, worker.name()), extendedTypeNum(NotesLine));
+        }
+    }
+
+}

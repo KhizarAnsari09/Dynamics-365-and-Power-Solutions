@@ -1,0 +1,17 @@
+[WHSWorkExecuteMode(WHSWorkExecuteMode::Query)]
+public class QueryDecoratorFactory implements WHSIMobileAppServiceXMLDecoratorFactory
+{
+    #Macros
+
+    public WHSMobileAppServiceXMLDecorator getDecorator(container _con)
+    {
+        if(WhsrfPassthrough::create(conPeek(_con, 2)).lookupStr(#CurrentStep) == classStr(QueryInquiryStep))
+        {
+            return new QueryInquiryDecorator();
+        }
+        
+        return new QueryResultDecorator();
+
+    }
+
+}
