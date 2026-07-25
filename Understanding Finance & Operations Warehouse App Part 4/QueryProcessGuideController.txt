@@ -1,0 +1,18 @@
+[WHSWorkExecuteMode(WHSWorkExecuteMode::Query)]
+public final class QueryProcessGuideController extends ProcessGuideController
+{
+    protected ProcessGuideStepName initialStepName()
+    {
+        return classStr(QueryInquiryStep);
+    }
+
+    protected ProcessGuideNavigationRoute initializeNavigationRoute()
+    {
+        ProcessGuideNavigationRoute navigationRoute = new ProcessGuideNavigationRoute();
+        
+        navigationRoute.addFollowingStep(classStr(QueryInquiryStep), classStr(QueryResultStep));
+        //navigationRoute.addFollowingStep(classStr(SalesOrdeResultStep), classStr(SalesOrderInquiryStep));
+
+        return navigationRoute;
+    }
+}
